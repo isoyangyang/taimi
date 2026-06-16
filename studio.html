@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taimi · Content Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body{background:linear-gradient(180deg,#FDF2EC,#FBEFE8)}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 80px}
+  .studio-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .studio-head h1{font-size:26px}
+  .lead2{color:var(--ink-soft);font-size:15px;line-height:1.55;margin:0 0 22px;max-width:60ch}
+  .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+  .tab{padding:10px 18px;border-radius:999px;background:#fff;box-shadow:var(--shadow-sm);
+    font-weight:800;font-size:14px;color:var(--ink-soft)}
+  .tab.is-active{background:var(--ink);color:#fff;box-shadow:none}
+  .grid{display:grid;gap:16px}
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+  .lbl{display:block;font-weight:800;font-size:12.5px;color:var(--ink);margin:0 0 6px 4px;letter-spacing:.2px}
+  .inp,.sel,.ta{width:100%;padding:13px 14px;border-radius:16px;border:1.5px solid var(--line);
+    background:#fff;font-family:var(--body);font-size:15px;color:var(--ink)}
+  .ta{min-height:130px;resize:vertical;line-height:1.55}
+  .inp:focus,.sel:focus,.ta:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 4px rgba(255,138,107,.15)}
+  .hint{font-size:12px;color:var(--ink-soft);margin:6px 0 0 4px;line-height:1.45}
+  .card2{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:22px}
+  .section-title{font-family:var(--display);font-weight:600;font-size:18px;margin:26px 0 12px}
+  .out{background:#2C2420;color:#FBE3D6;border-radius:18px;padding:18px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
+  .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .where{font-size:13.5px;color:var(--ink);background:var(--sage-soft);border-radius:14px;padding:12px 14px;line-height:1.5}
+  .where code{background:#fff;padding:2px 7px;border-radius:7px;font-size:12.5px}
+  .preview-card{margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="studio-head"><span style="font-size:26px">🌱</span><h1>Content Studio</h1></div>
+  <p class="lead2">Fill in the form, copy the snippet it makes, and paste it into the matching file in
+    <code>/content</code>. No coding needed — you're just adding one block at a time.
+    After pasting and saving the file, refresh the app to see it.</p>
+
+  <div class="tabs">
+    <button class="tab is-active" data-tab="article">📰 Insight article</button>
+    <button class="tab" data-tab="milestone">⭐ Milestone</button>
+    <button class="tab" data-tab="community">💬 Voice post</button>
+  </div>
+
+  <!-- ARTICLE -->
+  <section class="card2" data-panel="article">
+    <div class="grid">
+      <div class="full">
+        <label class="lbl">Headline</label>
+        <input class="inp" id="a_title" placeholder="e.g. Why newborn sleep feels so random" />
+      </div>
+      <div>
+        <label class="lbl">Category</label>
+        <select class="sel" id="a_cat">
+          <option>Development</option><option>Play &amp; learning</option>
+          <option>Relationships</option><option>Everyday life</option><option>Finland</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Reading time (minutes)</label>
+        <input class="inp" id="a_read" type="number" min="1" max="30" value="3" />
+      </div>
+      <div>
+        <label class="lbl">Show from (baby's age in months)</label>
+        <input class="inp" id="a_from" type="number" min="0" max="48" value="0" />
+        <p class="hint">Use 0 for "from birth".</p>
+      </div>
+      <div>
+        <label class="lbl">Show until (months)</label>
+        <input class="inp" id="a_to" type="number" min="0" max="48" value="36" />
+        <p class="hint">For "every age", set from 0 to 48.</p>
+      </div>
+      <div class="full">
+        <label class="lbl">Source / good-to-know <span class="hint" style="display:inline">(optional)</span></label>
+        <input class="inp" id="a_source" placeholder="e.g. Review with your neuvola" />
+      </div>
+      <div class="full">
+        <label class="lbl">Article text</label>
+        <textarea class="ta" id="a_body" placeholder="Write the article here.&#10;&#10;Leave a blank line between paragraphs — each becomes its own paragraph in the app."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- MILESTONE -->
+  <section class="card2" data-panel="milestone" hidden>
+    <div class="grid">
+      <div class="full">
+        <label class="lbl">Milestone name</label>
+        <input class="inp" id="m_title" placeholder="e.g. First social smile" />
+      </div>
+      <div>
+        <label class="lbl">Category</label>
+        <select class="sel" id="m_cat">
+          <option>Motor</option><option>Communication</option><option>Social</option>
+          <option>Self-care</option><option>Play</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Typical age (months)</label>
+        <input class="inp" id="m_age" type="number" min="0" max="48" step="0.5" value="2" />
+        <p class="hint">When it usually appears. Decimals OK (1.5 = 6 weeks).</p>
+      </div>
+      <div class="full">
+        <label class="lbl">Friendly age range (shown to parents)</label>
+        <input class="inp" id="m_window" placeholder="e.g. 6–8 weeks" />
+      </div>
+      <div class="full">
+        <label class="lbl">Note</label>
+        <textarea class="ta" id="m_note" style="min-height:90px" placeholder="One or two reassuring sentences about this milestone."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section class="card2" data-panel="community" hidden>
+    <div class="grid">
+      <div>
+        <label class="lbl">Display name</label>
+        <input class="inp" id="v_name" placeholder="e.g. Sanna" />
+      </div>
+      <div>
+        <label class="lbl">Baby's age (free text)</label>
+        <input class="inp" id="v_age" placeholder="e.g. 5 months" />
+      </div>
+      <div>
+        <label class="lbl">Starting hearts</label>
+        <input class="inp" id="v_likes" type="number" min="0" value="12" />
+      </div>
+      <div>
+        <label class="lbl">Posted how many days ago</label>
+        <input class="inp" id="v_days" type="number" min="0" value="0" />
+      </div>
+      <div class="full">
+        <label class="lbl">The post</label>
+        <textarea class="ta" id="v_text" style="min-height:90px" maxlength="280" placeholder="Keep it short and warm, like a tweet."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-title">Your snippet</div>
+  <div class="where" id="whereTo"></div>
+  <div class="row" style="margin-top:12px">
+    <button class="btn" id="copyBtn">Copy snippet</button>
+    <span class="muted" id="copyMsg" style="font-size:13px"></span>
+  </div>
+  <pre class="out" id="out"></pre>
+</div>
+
+<script>
+  let tab = 'article';
+  const $ = (id) => document.getElementById(id);
+  const q = (s) => JSON.stringify(String(s == null ? '' : s));          // safe string
+  const monthsToDays = (m) => Math.round(Number(m || 0) * 30.44);
+
+  const WHERE = {
+    article: 'Paste this just before the line <code>];</code> at the end of <code>content/articles.js</code>',
+    milestone: 'Paste this just before the line <code>];</code> at the end of <code>content/milestones.js</code> — then move it so the list stays ordered youngest → oldest.',
+    community: 'Paste this just before the line <code>];</code> at the end of <code>content/community.js</code>',
+  };
+
+  function slug(s) {
+    return (s || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'item';
+  }
+
+  function buildArticle() {
+    const body = ($('a_body').value || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    const o = [
+      `  {`,
+      `    id: ${q(slug($('a_title').value))},`,
+      `    title: ${q($('a_title').value)},`,
+      `    category: ${q($('a_cat').value)},`,
+      `    minDays: ${monthsToDays($('a_from').value)}, maxDays: ${monthsToDays($('a_to').value)}, readMins: ${Number($('a_read').value) || 3},`,
+      `    source: ${q($('a_source').value)},`,
+      `    body: ${JSON.stringify(body, null, 0).replace(/,/g, ', ')},`,
+      `  },`,
+    ];
+    return o.join('\n');
+  }
+  function buildMilestone() {
+    return [
+      `  { id: ${q(slug($('m_title').value))}, title: ${q($('m_title').value)}, category: ${q($('m_cat').value)},`,
+      `    typicalDays: ${monthsToDays($('m_age').value)}, window: ${q($('m_window').value)},`,
+      `    note: ${q($('m_note').value)} },`,
+    ].join('\n');
+  }
+  function buildCommunity() {
+    return [
+      `  { id: ${q('c' + Date.now())}, name: ${q($('v_name').value)}, babyAge: ${q($('v_age').value)},`,
+      `    text: ${q($('v_text').value)},`,
+      `    likes: ${Number($('v_likes').value) || 0}, daysAgo: ${Number($('v_days').value) || 0} },`,
+    ].join('\n');
+  }
+
+  function refresh() {
+    $('whereTo').innerHTML = WHERE[tab];
+    $('out').textContent =
+      tab === 'article' ? buildArticle() :
+      tab === 'milestone' ? buildMilestone() : buildCommunity();
+  }
+
+  document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
+    tab = b.dataset.tab;
+    document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('is-active', x === b));
+    document.querySelectorAll('[data-panel]').forEach((p) => p.hidden = p.dataset.panel !== tab);
+    refresh();
+  }));
+  document.querySelectorAll('input,textarea,select').forEach((el) => el.addEventListener('input', refresh));
+
+  $('copyBtn').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText($('out').textContent); $('copyMsg').textContent = 'Copied — now paste it into the file ✓'; }
+    catch { $('copyMsg').textContent = 'Select the text below and copy it manually.'; }
+    setTimeout(() => { $('copyMsg').textContent = ''; }, 3500);
+  });
+
+  refresh();
+</script>
+</body>
+</html>
