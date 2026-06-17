@@ -95,23 +95,52 @@ Share that link with your friend. Every time you upload changed files, the site 
 
 ---
 
-## 3) Adding content (the easy way) — the Content Studio
+## 3) Adding content with NO coding — the Content Studio
 
-Open **`studio.html`** in a browser (double-click it). It's a simple form-based tool for
-your friend — **no coding**. It can create three things:
+This is the part designed for a non-technical person to do completely alone. You never
+open or edit a code file; you fill in a form, download a file, and upload that one file.
 
-- **Article** (for the Insights feed)
-- **Milestone** (for the Journey)
-- **Community post** (for Voices)
+**Open the Studio from the published site:** go to your live address and add
+`/studio.html` to the end — e.g. `https://yourname.github.io/taimi/studio.html`.
+(Opening it from the site, rather than a copy on your computer, means it always sees the
+latest content so nothing gets out of date. Bookmark it.)
+
+It can create three things: an **Insight article**, a **Milestone** (for the Journey), and
+a **Voice post** (for the community feed).
 
 How it works:
-1. Pick a tab, fill in the fields (for articles you set the **age range in months** and it
-   converts to the right values automatically).
-2. Click **Copy snippet**.
-3. Open the matching file in `content/` and paste the snippet **just before the final `];`**.
-4. Save the file, re-upload it to GitHub, done.
+1. At the top it confirms what's already there ("Loaded your current content: 66 articles…").
+2. Pick a tab and fill in the fields. For articles you just give the **age range in
+   months** and it works out the rest.
+3. Click **Add to the list**. Add as many as you like in one sitting — they collect in a
+   list, and you can remove any you change your mind about.
+4. Click **Download the updated file**. The file you get already contains *everything
+   that's there now plus what you added*, so nothing is ever lost.
+5. Upload that file to GitHub to publish it — see the next step. The Studio also shows
+   these upload steps on screen.
 
-The Studio tells you exactly which file to paste into and shows a live preview.
+### Publishing the downloaded file (about a minute, no coding)
+
+1. Go to your project on **github.com** and sign in.
+2. Open the **`content`** folder.
+3. Click **Add file → Upload files** (top right).
+4. **Drag the downloaded file into the box.** Because it has the same name, it replaces
+   the old one — you are not editing anything by hand.
+5. Click the green **Commit changes** button.
+
+The site updates itself within a minute or two. Refresh the app to see the new content.
+There is no step where you ever open a `.js` file or paste code into the middle of one.
+
+> A note on staying in sync: always open the Studio from the *published site*
+> (`…/studio.html`), not from a downloaded copy on your computer. That way it always loads
+> the current live content before you add to it. If two people might edit on the same day,
+> coordinate so you're not both uploading at once.
+
+### For a technical helper: copy a snippet instead
+
+If you (the developer) would rather hand-edit, the Studio has an **"Advanced: copy a code
+snippet"** section that produces a single block to paste before the final `];` in the
+matching `content/` file.
 
 ### Or edit the content files directly
 
