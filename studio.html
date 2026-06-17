@@ -9,13 +9,16 @@
 <link rel="stylesheet" href="styles.css" />
 <style>
   body{background:linear-gradient(180deg,#FDF2EC,#FBEFE8)}
-  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 80px}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 90px}
   .studio-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
   .studio-head h1{font-size:26px}
-  .lead2{color:var(--ink-soft);font-size:15px;line-height:1.55;margin:0 0 22px;max-width:60ch}
+  .lead2{color:var(--ink-soft);font-size:15px;line-height:1.55;margin:0 0 18px;max-width:62ch}
+  .status{font-size:13.5px;border-radius:14px;padding:11px 14px;margin:0 0 22px;line-height:1.5}
+  .status.ok{background:var(--sage-soft);color:var(--ink)}
+  .status.warn{background:#FFE7DC;color:#8a3b22}
   .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
   .tab{padding:10px 18px;border-radius:999px;background:#fff;box-shadow:var(--shadow-sm);
-    font-weight:800;font-size:14px;color:var(--ink-soft)}
+    font-weight:800;font-size:14px;color:var(--ink-soft);cursor:pointer}
   .tab.is-active{background:var(--ink);color:#fff;box-shadow:none}
   .grid{display:grid;gap:16px}
   @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
@@ -27,20 +30,36 @@
   .hint{font-size:12px;color:var(--ink-soft);margin:6px 0 0 4px;line-height:1.45}
   .card2{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:22px}
   .section-title{font-family:var(--display);font-weight:600;font-size:18px;margin:26px 0 12px}
-  .out{background:#2C2420;color:#FBE3D6;border-radius:18px;padding:18px;font-family:ui-monospace,Menlo,Consolas,monospace;
-    font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
-  .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .btn--sage{background:var(--sage)}
+  .btn--ghost{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm)}
+  .btn[disabled]{opacity:.45;pointer-events:none}
+  .msg{font-size:13px;color:var(--ink-soft)}
+  .added{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .added-item{display:flex;align-items:center;gap:10px;background:var(--sage-soft);border-radius:14px;padding:10px 12px;font-size:14px}
+  .added-item b{font-weight:800}
+  .added-item .x{margin-left:auto;border:none;background:#fff;border-radius:9px;padding:4px 9px;font-weight:800;color:#8a3b22;cursor:pointer}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:10px 0 0}
+  .steps li{counter-increment:s;position:relative;padding:10px 0 10px 40px;border-bottom:1px solid var(--line);line-height:1.55;font-size:14.5px}
+  .steps li:last-child{border-bottom:none}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;
+    background:var(--coral);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .pill{display:inline-block;background:var(--sage-soft);border-radius:8px;padding:1px 8px;font-weight:700;font-size:13px}
+  details.adv{margin-top:26px}
+  details.adv summary{cursor:pointer;font-weight:800;color:var(--ink-soft);font-size:14px}
+  .out{margin-top:12px;background:#2C2420;color:#FBE3D6;border-radius:18px;padding:18px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
   .where{font-size:13.5px;color:var(--ink);background:var(--sage-soft);border-radius:14px;padding:12px 14px;line-height:1.5}
   .where code{background:#fff;padding:2px 7px;border-radius:7px;font-size:12.5px}
-  .preview-card{margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="studio-head"><span style="font-size:26px">🌱</span><h1>Content Studio</h1></div>
-  <p class="lead2">Fill in the form, copy the snippet it makes, and paste it into the matching file in
-    <code>/content</code>. No coding needed — you're just adding one block at a time.
-    After pasting and saving the file, refresh the app to see it.</p>
+  <p class="lead2">Add new articles, milestones and posts to Taimi — no coding. Fill in the form, click
+    <b>Add to the list</b>, then <b>Download the file</b> and upload it to your site. That's it.</p>
+
+  <div class="status" id="status">Loading your current content…</div>
 
   <div class="tabs">
     <button class="tab is-active" data-tab="article">📰 Insight article</button>
@@ -85,6 +104,10 @@
         <textarea class="ta" id="a_body" placeholder="Write the article here.&#10;&#10;Leave a blank line between paragraphs — each becomes its own paragraph in the app."></textarea>
       </div>
     </div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn btn--sage" id="addArticle">Add to the list</button>
+      <span class="msg" id="addArticleMsg"></span>
+    </div>
   </section>
 
   <!-- MILESTONE -->
@@ -115,6 +138,11 @@
         <textarea class="ta" id="m_note" style="min-height:90px" placeholder="One or two reassuring sentences about this milestone."></textarea>
       </div>
     </div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn btn--sage" id="addMilestone">Add to the list</button>
+      <span class="msg" id="addMilestoneMsg"></span>
+    </div>
+    <p class="hint" style="margin-top:10px">Milestones are sorted youngest → oldest automatically when you download.</p>
   </section>
 
   <!-- COMMUNITY -->
@@ -141,84 +169,309 @@
         <textarea class="ta" id="v_text" style="min-height:90px" maxlength="280" placeholder="Keep it short and warm, like a tweet."></textarea>
       </div>
     </div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn btn--sage" id="addCommunity">Add to the list</button>
+      <span class="msg" id="addCommunityMsg"></span>
+    </div>
   </section>
 
-  <div class="section-title">Your snippet</div>
-  <div class="where" id="whereTo"></div>
-  <div class="row" style="margin-top:12px">
-    <button class="btn" id="copyBtn">Copy snippet</button>
-    <span class="muted" id="copyMsg" style="font-size:13px"></span>
+  <!-- ADDED THIS SESSION + DOWNLOAD -->
+  <div class="section-title">What you've added this time</div>
+  <div class="card2">
+    <div id="addedList" class="added"><span class="msg">Nothing added yet. Fill in the form above and click “Add to the list”.</span></div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn" id="downloadBtn" disabled>Download the updated file</button>
+      <span class="msg" id="dlMsg"></span>
+    </div>
+    <p class="hint" id="dlHint" style="margin-top:10px"></p>
   </div>
-  <pre class="out" id="out"></pre>
+
+  <!-- PUBLISH GUIDE -->
+  <div class="section-title">How to publish it (about 1 minute)</div>
+  <div class="card2">
+    <p class="msg" style="margin:0 0 6px">After you download the file, put it on your website like this:</p>
+    <ol class="steps">
+      <li>Go to your project on <b>github.com</b> and sign in.</li>
+      <li>Open the <span class="pill">content</span> folder.</li>
+      <li>Click <b>Add file → Upload files</b> (top right).</li>
+      <li>Drag the file you just downloaded into the box. Because it has the same name, it replaces the old one.</li>
+      <li>Scroll down and click the green <b>Commit changes</b> button.</li>
+    </ol>
+    <p class="hint" style="margin-top:12px">Your site updates by itself in a minute or two. Refresh the app to see the new content.
+      The file you download already contains <b>everything that's there now plus what you added</b>, so nothing gets lost.</p>
+  </div>
+
+  <!-- ADVANCED: snippet (for the technical helper) -->
+  <details class="adv">
+    <summary>Advanced: just copy a code snippet instead</summary>
+    <div class="where" id="whereTo" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn btn--ghost" id="copyBtn">Copy snippet</button>
+      <span class="msg" id="copyMsg"></span>
+    </div>
+    <pre class="out" id="out"></pre>
+  </details>
 </div>
 
 <script>
+  /* ---------- load the current content (so the download includes everything) ---------- */
+  window.TAIMI = window.TAIMI || {};
+  const FILES = ['stages', 'articles', 'milestones', 'community'];
+  const local = location.protocol === 'file:';
+  let loadedOK = 0;
+
+  function loadOne(name, done) {
+    const s = document.createElement('script');
+    s.src = 'content/' + name + '.js' + (local ? '' : '?t=' + Date.now());
+    s.onload = () => { loadedOK++; done(); };
+    s.onerror = () => { done(); };
+    document.head.appendChild(s);
+  }
+  function loadAll(then) {
+    let n = 0;
+    FILES.forEach((f) => loadOne(f, () => { n++; if (n === FILES.length) then(); }));
+  }
+
+  /* ---------- working copies + helpers ---------- */
+  const data = { articles: [], milestones: [], community: [] };
+  const added = [];               // {type, label, ref}
   let tab = 'article';
   const $ = (id) => document.getElementById(id);
-  const q = (s) => JSON.stringify(String(s == null ? '' : s));          // safe string
   const monthsToDays = (m) => Math.round(Number(m || 0) * 30.44);
-
-  const WHERE = {
-    article: 'Paste this just before the line <code>];</code> at the end of <code>content/articles.js</code>',
-    milestone: 'Paste this just before the line <code>];</code> at the end of <code>content/milestones.js</code> — then move it so the list stays ordered youngest → oldest.',
-    community: 'Paste this just before the line <code>];</code> at the end of <code>content/community.js</code>',
-  };
-
   function slug(s) {
     return (s || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'item';
   }
+  function uniqueId(base, list) {
+    let id = base, i = 2;
+    const has = (x) => list.some((o) => o.id === x);
+    while (has(id)) { id = base + '-' + i++; }
+    return id;
+  }
+  const flash = (el, text, ok) => { el.textContent = text; el.style.color = ok ? 'var(--sage)' : '#8a3b22'; setTimeout(() => { el.textContent = ''; }, 4000); };
 
-  function buildArticle() {
+  /* ---------- file regeneration (whole file, valid JS, keeps å ä ö) ---------- */
+  const HEADERS = {
+    articles:
+'/* =============================================================\n' +
+'   ARTICLES  —  the "Insights" newsfeed\n' +
+'   -------------------------------------------------------------\n' +
+'   Generated/updated with the Content Studio (studio.html).\n' +
+'   Each article shows under "For your baby right now" when the\n' +
+'   baby\'s age falls between minDays and maxDays.\n' +
+'     category  Development | Play & learning | Relationships |\n' +
+'               Everyday life | Finland\n' +
+'     minDays / maxDays   age range in days (0 and 1460 ~= all ages)\n' +
+'     body      array of paragraphs\n' +
+'   ============================================================= */\n\n' +
+'window.TAIMI = window.TAIMI || {};\n\n' +
+'window.TAIMI.articles = [',
+    milestones:
+'/* =============================================================\n' +
+'   MILESTONES  —  the "Journey" timeline\n' +
+'   -------------------------------------------------------------\n' +
+'   Generated/updated with the Content Studio (studio.html).\n' +
+'   Ordered youngest -> oldest by typicalDays (in days).\n' +
+'     category  Motor | Communication | Social | Self-care | Play\n' +
+'   ============================================================= */\n\n' +
+'window.TAIMI = window.TAIMI || {};\n\n' +
+'window.TAIMI.milestones = [',
+    community:
+'/* =============================================================\n' +
+'   COMMUNITY  —  the "Voices" feed\n' +
+'   -------------------------------------------------------------\n' +
+'   Generated/updated with the Content Studio (studio.html).\n' +
+'   These are the example posts everyone sees.\n' +
+'   ============================================================= */\n\n' +
+'window.TAIMI = window.TAIMI || {};\n\n' +
+'window.TAIMI.community = [',
+  };
+
+  const str = (v) => JSON.stringify(v == null ? '' : String(v));   // valid JS string, unicode kept
+
+  function articleToJS(a) {
+    const lines = ['  {',
+      '    id: ' + str(a.id) + ',',
+      '    title: ' + str(a.title) + ',',
+      '    category: ' + str(a.category) + ',',
+      '    minDays: ' + a.minDays + ', maxDays: ' + a.maxDays + ', readMins: ' + a.readMins + ',',
+      '    source: ' + str(a.source || '') + ',',
+      '    body: ['];
+    (a.body || []).forEach((p) => lines.push('      ' + str(p) + ','));
+    lines.push('    ],', '  },');
+    return lines.join('\n');
+  }
+  function milestoneToJS(m) {
+    return [
+      '  { id: ' + str(m.id) + ', title: ' + str(m.title) + ', category: ' + str(m.category) + ',',
+      '    typicalDays: ' + m.typicalDays + ', window: ' + str(m.window) + ',',
+      '    note: ' + str(m.note) + ' },'
+    ].join('\n');
+  }
+  function communityToJS(c) {
+    return [
+      '  { id: ' + str(c.id) + ', name: ' + str(c.name) + ', babyAge: ' + str(c.babyAge) + ',',
+      '    text: ' + str(c.text) + ',',
+      '    likes: ' + (Number(c.likes) || 0) + ', daysAgo: ' + (Number(c.daysAgo) || 0) + ' },'
+    ].join('\n');
+  }
+  function buildFile(type) {
+    let items = data[type].slice();
+    let body;
+    if (type === 'articles') body = items.map(articleToJS);
+    else if (type === 'milestones') { items.sort((a, b) => a.typicalDays - b.typicalDays); body = items.map(milestoneToJS); }
+    else body = items.map(communityToJS);
+    return HEADERS[type] + '\n' + body.join('\n') + '\n];\n';
+  }
+  function download(filename, text) {
+    const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  /* ---------- adding items ---------- */
+  function renderAdded() {
+    const wrap = $('addedList');
+    if (!added.length) { wrap.innerHTML = '<span class="msg">Nothing added yet. Fill in the form above and click “Add to the list”.</span>'; }
+    else {
+      wrap.innerHTML = '';
+      added.forEach((it, i) => {
+        const div = document.createElement('div');
+        div.className = 'added-item';
+        const kind = it.type === 'articles' ? 'Article' : it.type === 'milestones' ? 'Milestone' : 'Voice post';
+        div.innerHTML = '<span><b>' + kind + ':</b> ' + it.label.replace(/</g, '&lt;') + '</span>';
+        const x = document.createElement('button');
+        x.className = 'x'; x.textContent = 'Remove';
+        x.onclick = () => {
+          const arr = data[it.type]; const idx = arr.indexOf(it.ref); if (idx > -1) arr.splice(idx, 1);
+          added.splice(i, 1); renderAdded();
+        };
+        div.appendChild(x); wrap.appendChild(div);
+      });
+    }
+    syncDownload();
+  }
+  function syncDownload() {
+    const counts = added.reduce((m, it) => (m[it.type] = (m[it.type] || 0) + 1, m), {});
+    const types = Object.keys(counts);
+    const btn = $('downloadBtn');
+    btn.disabled = types.length === 0 || loadedOK === 0;
+    if (types.length === 1) { btn.textContent = 'Download the updated ' + types[0] + '.js'; }
+    else if (types.length > 1) { btn.textContent = 'Download the ' + types.length + ' updated files'; }
+    else { btn.textContent = 'Download the updated file'; }
+    $('dlHint').textContent = types.length > 1
+      ? 'You added different kinds of content, so this downloads one file for each. Upload each into the content folder.'
+      : '';
+  }
+
+  function addArticle() {
+    const title = $('a_title').value.trim();
     const body = ($('a_body').value || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-    const o = [
-      `  {`,
-      `    id: ${q(slug($('a_title').value))},`,
-      `    title: ${q($('a_title').value)},`,
-      `    category: ${q($('a_cat').value)},`,
-      `    minDays: ${monthsToDays($('a_from').value)}, maxDays: ${monthsToDays($('a_to').value)}, readMins: ${Number($('a_read').value) || 3},`,
-      `    source: ${q($('a_source').value)},`,
-      `    body: ${JSON.stringify(body, null, 0).replace(/,/g, ', ')},`,
-      `  },`,
-    ];
-    return o.join('\n');
+    if (!title) return flash($('addArticleMsg'), 'Add a headline first.', false);
+    if (!body.length) return flash($('addArticleMsg'), 'Write some article text first.', false);
+    const a = {
+      id: uniqueId(slug(title), data.articles),
+      title, category: $('a_cat').value,
+      minDays: monthsToDays($('a_from').value), maxDays: monthsToDays($('a_to').value),
+      readMins: Number($('a_read').value) || 3,
+      source: $('a_source').value.trim(), body
+    };
+    data.articles.push(a); added.push({ type: 'articles', label: title, ref: a });
+    ['a_title', 'a_source', 'a_body'].forEach((id) => $(id).value = '');
+    renderAdded(); refreshSnippet(); flash($('addArticleMsg'), 'Added ✓', true);
   }
-  function buildMilestone() {
-    return [
-      `  { id: ${q(slug($('m_title').value))}, title: ${q($('m_title').value)}, category: ${q($('m_cat').value)},`,
-      `    typicalDays: ${monthsToDays($('m_age').value)}, window: ${q($('m_window').value)},`,
-      `    note: ${q($('m_note').value)} },`,
-    ].join('\n');
+  function addMilestone() {
+    const title = $('m_title').value.trim();
+    const note = $('m_note').value.trim();
+    if (!title) return flash($('addMilestoneMsg'), 'Add a milestone name first.', false);
+    const m = {
+      id: uniqueId(slug(title), data.milestones), title, category: $('m_cat').value,
+      typicalDays: monthsToDays($('m_age').value), window: $('m_window').value.trim(), note
+    };
+    data.milestones.push(m); added.push({ type: 'milestones', label: title, ref: m });
+    ['m_title', 'm_window', 'm_note'].forEach((id) => $(id).value = '');
+    renderAdded(); refreshSnippet(); flash($('addMilestoneMsg'), 'Added ✓', true);
   }
-  function buildCommunity() {
-    return [
-      `  { id: ${q('c' + Date.now())}, name: ${q($('v_name').value)}, babyAge: ${q($('v_age').value)},`,
-      `    text: ${q($('v_text').value)},`,
-      `    likes: ${Number($('v_likes').value) || 0}, daysAgo: ${Number($('v_days').value) || 0} },`,
-    ].join('\n');
+  function addCommunity() {
+    const name = $('v_name').value.trim();
+    const text = $('v_text').value.trim();
+    if (!name) return flash($('addCommunityMsg'), 'Add a display name first.', false);
+    if (!text) return flash($('addCommunityMsg'), 'Write the post first.', false);
+    const c = {
+      id: uniqueId('c-' + slug(name), data.community), name, babyAge: $('v_age').value.trim(),
+      text, likes: Number($('v_likes').value) || 0, daysAgo: Number($('v_days').value) || 0
+    };
+    data.community.push(c); added.push({ type: 'community', label: text.slice(0, 40) + (text.length > 40 ? '…' : ''), ref: c });
+    ['v_name', 'v_age', 'v_text'].forEach((id) => $(id).value = '');
+    renderAdded(); refreshSnippet(); flash($('addCommunityMsg'), 'Added ✓', true);
   }
 
-  function refresh() {
-    $('whereTo').innerHTML = WHERE[tab];
-    $('out').textContent =
-      tab === 'article' ? buildArticle() :
-      tab === 'milestone' ? buildMilestone() : buildCommunity();
+  /* ---------- snippet (advanced) ---------- */
+  const WHERE = {
+    article: 'Paste this just before the line <code>];</code> at the end of <code>content/articles.js</code>',
+    milestone: 'Paste this just before the line <code>];</code> at the end of <code>content/milestones.js</code> — keep the list ordered youngest → oldest.',
+    community: 'Paste this just before the line <code>];</code> at the end of <code>content/community.js</code>',
+  };
+  function previewObject() {
+    if (tab === 'article') {
+      const body = ($('a_body').value || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+      return articleToJS({ id: slug($('a_title').value), title: $('a_title').value, category: $('a_cat').value,
+        minDays: monthsToDays($('a_from').value), maxDays: monthsToDays($('a_to').value),
+        readMins: Number($('a_read').value) || 3, source: $('a_source').value, body });
+    }
+    if (tab === 'milestone') {
+      return milestoneToJS({ id: slug($('m_title').value), title: $('m_title').value, category: $('m_cat').value,
+        typicalDays: monthsToDays($('m_age').value), window: $('m_window').value, note: $('m_note').value });
+    }
+    return communityToJS({ id: 'c' + Date.now(), name: $('v_name').value, babyAge: $('v_age').value,
+      text: $('v_text').value, likes: Number($('v_likes').value) || 0, daysAgo: Number($('v_days').value) || 0 });
   }
+  function refreshSnippet() { $('whereTo').innerHTML = WHERE[tab]; $('out').textContent = previewObject(); }
 
+  /* ---------- wiring ---------- */
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
     tab = b.dataset.tab;
     document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('is-active', x === b));
     document.querySelectorAll('[data-panel]').forEach((p) => p.hidden = p.dataset.panel !== tab);
-    refresh();
+    refreshSnippet();
   }));
-  document.querySelectorAll('input,textarea,select').forEach((el) => el.addEventListener('input', refresh));
+  document.querySelectorAll('input,textarea,select').forEach((el) => el.addEventListener('input', refreshSnippet));
+  $('addArticle').addEventListener('click', addArticle);
+  $('addMilestone').addEventListener('click', addMilestone);
+  $('addCommunity').addEventListener('click', addCommunity);
 
+  $('downloadBtn').addEventListener('click', () => {
+    const types = [...new Set(added.map((a) => a.type))];
+    types.forEach((t) => download(t + '.js', buildFile(t)));
+    flash($('dlMsg'), 'Downloaded ✓ — now upload it to GitHub (steps below).', true);
+  });
   $('copyBtn').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText($('out').textContent); $('copyMsg').textContent = 'Copied — now paste it into the file ✓'; }
-    catch { $('copyMsg').textContent = 'Select the text below and copy it manually.'; }
-    setTimeout(() => { $('copyMsg').textContent = ''; }, 3500);
+    try { await navigator.clipboard.writeText($('out').textContent); flash($('copyMsg'), 'Copied ✓', true); }
+    catch { flash($('copyMsg'), 'Select the text below and copy it manually.', false); }
   });
 
-  refresh();
+  /* ---------- boot ---------- */
+  loadAll(() => {
+    data.articles = (window.TAIMI.articles || []).slice();
+    data.milestones = (window.TAIMI.milestones || []).slice();
+    data.community = (window.TAIMI.community || []).slice();
+    const s = $('status');
+    if (loadedOK > 0 && (data.articles.length || data.milestones.length || data.community.length)) {
+      s.className = 'status ok';
+      s.innerHTML = 'Loaded your current content: <b>' + data.articles.length + '</b> articles, <b>' +
+        data.milestones.length + '</b> milestones, <b>' + data.community.length + '</b> voice posts. ' +
+        'Anything you download will include all of this plus your additions.';
+    } else {
+      s.className = 'status warn';
+      s.innerHTML = 'Couldn\'t read the current content. For the safe one-file download, open this Studio ' +
+        '<b>from your published site</b> (your-site-address/studio.html) or from inside the Taimi project ' +
+        'folder next to the <code>content</code> folder. You can still use the “Copy snippet” option below.';
+    }
+    refreshSnippet();
+    renderAdded();
+  });
 </script>
 </body>
 </html>
